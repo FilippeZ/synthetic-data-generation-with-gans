@@ -51,7 +51,6 @@ The notebook includes plotting functions to overlay Real vs. Synthetic data dist
 ## 📂 Repository Structure
 
 *   `wgan_gp.ipynb`: The primary notebook containing all code, from data loading to evaluation.
-*   `list_notebook_content.py`: Utility script for inspecting notebook internals.
 *   `GANS.mp4`: Supplementary video demonstration.
 *   `WGAN-GP.pdf` / `pptx`: Theoretical presentation slides and documentation.
 *   `sms-call-internet-mi-2013-11-01.csv`: The source dataset.
