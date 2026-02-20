@@ -1,77 +1,97 @@
-# Generating Synthetic Data with WGAN-GP
+# 🧠 Generating Synthetic Data with WGAN-GP — High-Fidelity Data Simulation
 
-This repository hosts a robust implementation of a **Wasserstein Generative Adversarial Network with Gradient Penalty (WGAN-GP)** designed to generate high-fidelity synthetic tabular data. The project demonstrates an end-to-end pipeline from raw data preprocessing to advanced model evaluation.
+[Bridging the gap between raw data privacy and high-quality analytics through stable, synthetic tabular data generation.]
 
-## 🚀 Project Overview
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![TensorFlow 2.x](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The core of this project is the `wgan_gp.ipynb` notebook, which provides a detailed walkthrough of generating synthetic telecommunications data (CDRs) that preserves the statistical properties of the original dataset.
+---
 
-### Key Features
-*   **Advanced GAN Architecture**: Utilizes WGAN-GP (Wasserstein GAN with Gradient Penalty) to overcome common GAN training instability and mode collapse issues.
-*   **Custom Training Loop**: Implements a fine-tuned training loop with a configurable Critic-to-Generator update ratio (`n_critic`) and learning rate decay for optimal convergence.
-*   **Comprehensive Evaluation**: Goes beyond visual inspection by calculating rigorous statistical metrics to quantify data quality.
+## 📋 Overview
+This repository hosts a robust implementation of a **Wasserstein Generative Adversarial Network with Gradient Penalty (WGAN-GP)** designed to generate high-fidelity synthetic tabular data. The project provides an end-to-end pipeline—from raw data preprocessing to advanced model evaluation—demonstrating the generation of synthetic telecommunications data (CDRs) that strictly preserves the statistical properties of the original dataset.
 
-## 📊 Methodology
+## 🎯 The Problem
+Modern data-driven analytics in telecommunications and other sensitive domains often faces a critical bottleneck:
+* **Data Privacy:** Strict regulations limit the sharing and usage of real user data (e.g., Call Detail Records).
+* **Training Instability:** Traditional GANs suffer from vanishing gradients and mode collapse, failing to capture the full diversity of complex tabular datasets.
+* **Evaluation Deficit:** Generating data isn't enough; lacking rigorous statistical metrics makes it impossible to quantify the true quality and safety of synthetic alternatives.
 
-The project workflow consists of the following stages:
+## ✅ The Solution
+This project leverages the advanced WGAN-GP architecture to overcome common GAN training instability, converting sensitive datasets into robust, safe synthetic alternatives.
 
-1.  **Data Preprocessing**:
-    *   Loading and cleaning the `sms-call-internet-mi-2013-11-01.csv` dataset.
-    *   Handling missing values and normalizing features to ensure stable training dynamics.
-    *   Filtering zero-variance rows to focus on meaningful data patterns.
+| Feature | Technical Approach | Objective |
+| :--- | :--- | :--- |
+| **Stable Training** | Wasserstein Distance & Gradient Penalty | Mitigate mode collapse & stabilize gradients |
+| **Statistical Fidelity** | Custom Evaluation Metrics (MSE, KL Div) | Ensure synthetic data mirrors real distributions |
+| **Data Diversity** | Cosine Similarity & Coverage Tracking | Prevent model memorization (overfitting) |
 
-2.  **Exploratory Data Analysis (EDA)**:
-    *   Statistical profiling of the input data.
-    *   Correlation analysis using **Spearman** correlation matrices and heatmaps.
-    *   Distribution visualization via pair plots and histograms.
+---
 
-3.  **WGAN-GP Implementation**:
-    *   **Generator**: A neural network designed to map random noise to the data space.
-    *   **Critic (Discriminator)**: A network trained to approximate the Wasserstein distance between real and synthetic distributions.
-    *   **Gradient Penalty**: Enforced to satisfy the 1-Lipschitz constraint, ensuring stable gradients throughout training.
+## 🏗️ Architecture & Workflow
+The system follows a sequential pipeline to ensure high-quality data synthesis:
 
-4.  **Training Process**:
-    *   The model is trained over multiple epochs with a dynamic learning rate.
-    *   The Critic is updated multiple times for every Generator update to maintain a meaningful gradient signal.
-    *   **Loss Tracking**: real-time monitoring of D_loss, G_loss, and Gradient Penalty values.
+1. **Ingestion & Preprocessing Layer:** Loading `sms-call-internet-mi-2013-11-01.csv`, handling missing values, normalizing features, and filtering out zero-variance rows to ensure stable training dynamics.
+2. **Exploratory Data Analysis (EDA):** Statistical profiling, Spearman correlation matrices, and distribution visualizations (pair plots, histograms).
+3. **Model Layer (WGAN-GP):** 
+   * **Generator:** A deep neural network mapping random noise to the data space manifold.
+   * **Critic (Discriminator):** Approximates the Wasserstein distance between real and synthetic distributions.
+4. **Training Optimization:** Enforcing a 1-Lipschitz constraint via Gradient Penalty. The model features a dynamic learning rate and a configurable Critic-to-Generator update ratio (`n_critic`) for optimal convergence.
+
+## 📂 Project Structure
+```text
+synthetic-data-generation-with-gans/
+├── wgan_gp.ipynb                  # 🧠 Main Notebook (Data loading to evaluation)
+├── sms-call-internet-mi-2013-11-01.csv # 📊 Source Dataset (CDRs)
+├── GANS.mp4                       # 🎥 Video demonstration
+└── WGAN-GP.pdf / pptx             # 📋 Theoretical presentation slides
+```
+
+## 🚀 Quick Start
+
+### 1. Installation
+```bash
+git clone https://github.com/FilippeZ/synthetic-data-generation-with-gans.git
+cd synthetic-data-generation-with-gans
+pip install pandas numpy matplotlib seaborn tensorflow
+```
+
+### 2. Execution
+Launch the primary notebook to begin training and evaluation:
+```bash
+jupyter notebook wgan_gp.ipynb
+```
+*(Alternatively, you can run the notebook directly in Google Colab).*
 
 ## 📈 Evaluation & Results
+We rigorously quantify the quality of the generated synthetic data using a suite of statistical metrics:
 
-The quality of the generated synthetic data is evaluated using a suite of quantitative metrics:
+* **Fidelity (MSE):** Measures how closely the synthetic data distribution matches the real data.
+* **Cosine Similarity:** Evaluates the directional alignment of feature vectors.
+* **KL Divergence:** Quantifies the information loss when approximating the real distribution with the synthetic one.
+* **Diversity:** Assesses the variance within the generated data to ensure the model isn't memorizing specific samples.
+* **Coverage:** Measures the spread of synthetic data across the real data manifold.
 
-*   **Fidelity (MSE)**: Measures how closely the synthetic data distribution matches the real data.
-*   **Cosine Similarity**: Evaluates the directional alignment of feature vectors.
-*   **KL Divergence**: Quantifies the information loss when approximating the real distribution with the synthetic one.
-*   **Diversity**: Assesses the variance within the generated data to ensure the model isn't simply memorizing samples.
-*   **Coverage**: Measures the spread of synthetic data across the real data manifold.
+*Visual Validation:* The notebook plots Real vs. Synthetic data distributions (e.g., SMS In/Out, Call In/Out, Internet Usage) to visually verify feature matching.
 
-### Visual Validation
-The notebook includes plotting functions to overlay Real vs. Synthetic data distributions (e.g., SMS In/Out, Call In/Out, Internet Usage) for visual inspection of feature matching.
+## 🔬 Deep Dive: WGAN-GP Mechanics
+Traditional GANs minimize the Jensen-Shannon divergence, which leads to vanishing gradients when the generated and real distributions do not overlap.
 
-## 📂 Repository Structure
+**Wasserstein GAN:** Minimizes the Earth Mover's (Wasserstein-1) distance, providing a smooth, meaningful gradient everywhere.
 
-*   `wgan_gp.ipynb`: The primary notebook containing all code, from data loading to evaluation.
-*   `GANS.mp4`: Supplementary video demonstration.
-*   `WGAN-GP.pdf` / `pptx`: Theoretical presentation slides and documentation.
-*   `sms-call-internet-mi-2013-11-01.csv`: The source dataset.
+**Gradient Penalty:** Instead of weight clipping (which causes pathological behavior), WGAN-GP penalizes the norm of the critic's gradient with respect to its input. This naturally enforces the required 1-Lipschitz continuity:
 
-## 🛠 Requirements
+> $L = \mathbb{E}_{\tilde{x} \sim P_g}[D(\tilde{x})] - \mathbb{E}_{x \sim P_r}[D(x)] + \lambda \mathbb{E}_{\hat{x} \sim P_{\hat{x}}}[(||\nabla_{\hat{x}} D(\hat{x})||_2 - 1)^2]$
 
-To reproduce these results, you will need a Python environment with:
-*   **TensorFlow** (2.x)
-*   **Pandas** & **NumPy** (Data manipulation)
-*   **Matplotlib** & **Seaborn** (Visualization)
+## 🛠️ Tech Stack
+* **Language:** Python 3.9+
+* **Deep Learning Framework:** TensorFlow (2.x)
+* **Data Processing:** Pandas, NumPy
+* **Visualization:** Matplotlib, Seaborn
 
-## 🚀 Usage
-
-1.  Clone this repository:
-    ```bash
-    git clone https://github.com/FilippeZ/synthetic-data-generation-with-gans.git
-    cd synthetic-data-generation-with-gans
-    ```
-2.  Install dependencies (ensure TensorFlow is configured for your hardware).
-3.  Run the `wgan_gp.ipynb` notebook in Jupyter or Google Colab.
+## 📄 License
+Licensed under the MIT License — see LICENSE for details.
 
 ## 👤 Author
-
-**Filippos Paraskevas Zygouris**
+**Filippos-Paraskevas Zygouris**
+[GitHub Profile](https://github.com/FilippeZ)
