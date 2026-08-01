@@ -1,0 +1,23 @@
+{
+  "name": "synthetic-data-generation-with-gans",
+  "version": "1.0.0",
+  "description": "High-fidelity synthetic data generation with WGAN-GP for 5G IoT, telecommunications, and healthcare diagnostics.",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python app.py"
+  },
+  "keywords": [
+    "wgan-gp",
+    "synthetic-data",
+    "gans",
+    "5g",
+    "healthcare",
+    "mri",
+    "stitch",
+    "flask",
+    "tensorflow"
+  ],
+  "author": "Filippos-Paraskevas Zygouris",
+  "license": "MIT"
+}

@@ -6,3 +6,15 @@ __pycache__/
 .venv
 env/
 venv/
+saved_weights/
+montages/
+synthetic_glioma/
+synthetic_meningioma/
+synthetic_notumor/
+synthetic_pituitary/
+*.mp4
+*.pptx
+sms-call-internet-mi-2013-11-01.csv
+Training/
+Testing/
+_make_mri_notebook.py

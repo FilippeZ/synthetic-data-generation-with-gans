@@ -1,0 +1,200 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-bright":"#fcf9f8","surface-variant":"#e5e2e1","surface-tint":"#745853","tertiary-fixed":"#e2e3df","on-primary":"#ffffff","surface-container":"#f0eded","on-tertiary-container":"#939491","primary":"#271310","surface-container-lowest":"#ffffff","on-secondary-container":"#623400","surface-container-low":"#f6f3f2","secondary-container":"#ff8f00","on-surface-variant":"#504442","error-container":"#ffdad6","on-surface":"#1b1c1c","surface":"#fcf9f8","on-error-container":"#93000a","on-primary-container":"#ae8d87","on-primary-fixed-variant":"#5b403c","surface-container-highest":"#e5e2e1","inverse-primary":"#e3beb8","secondary":"#8f4e00","on-tertiary-fixed-variant":"#454745","surface-dim":"#dcd9d9","inverse-on-surface":"#f3f0ef","on-tertiary":"#ffffff","outline-variant":"#d3c3c0","secondary-fixed":"#ffdcc2","on-secondary":"#ffffff","tertiary-fixed-dim":"#c6c7c3","primary-fixed-dim":"#e3beb8","tertiary-container":"#2b2d2b","outline":"#827472","secondary-fixed-dim":"#ffb77a","on-secondary-fixed":"#2e1500","error":"#ba1a1a","tertiary":"#161916","primary-container":"#3e2723","on-secondary-fixed-variant":"#6d3a00","primary-fixed":"#ffdad4","inverse-surface":"#303030","on-error":"#ffffff","on-primary-fixed":"#2b1613","surface-container-high":"#eae7e7","on-tertiary-fixed":"#1a1c1a","background":"#fcf9f8","on-background":"#1b1c1c"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter":"24px","unit":"8px","container-max":"1440px","margin-desktop":"40px","margin-mobile":"16px"},"fontFamily":{"title-md":["Inter"],"headline-lg-mobile":["Playfair Display"],"body-lg":["Inter"],"label-caps":["Inter"],"body-sm":["Inter"],"display-lg":["Playfair Display"],"headline-lg":["Playfair Display"]},"fontSize":{"title-md":["18px",{"lineHeight":"1.5","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"1.2","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"1.6","fontWeight":"400"}],"label-caps":["12px",{"lineHeight":"1","letterSpacing":"0.08em","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"1.5","fontWeight":"400"}],"display-lg":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"1.2","fontWeight":"600"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-lg text-on-background"><aside class="fixed left-0 top-0 h-full w-72 bg-primary-container text-on-primary-container z-50 flex flex-col shadow-xl"><div class="p-gutter flex items-center gap-3 border-b border-on-primary-container/10 mb-unit"><a href="../../index.html" class="flex items-center gap-3"><img alt="Synthesis Logo" class="h-8 w-8 rounded object-cover" src="../../logo.jpeg"/><span class="font-headline-lg text-title-md tracking-tight text-on-primary">Synthesis Hub</span></a></div><nav class="flex-1 px-4 py-6 space-y-2" data-active-classes="bg-secondary-container text-on-secondary-container border-l-4 border-secondary"><a class="flex items-center px-4 py-4 rounded-lg text-on-primary-container/70 hover:bg-on-primary-container/5 hover:text-on-primary transition-all gap-4" data-path="iot-anomaly-detection" href="../5g_iot_anomaly_detection/code.html"><span class="material-symbols-outlined">radar</span><span class="font-label-caps">5G IoT Anomaly</span></a><a aria-current="page" class="flex items-center px-4 py-4 rounded-lg transition-all gap-4 bg-secondary-container text-on-secondary-container border-l-4 border-secondary" data-path="medical-data-synthesizer" href="#"><span class="material-symbols-outlined">biotech</span><span class="font-label-caps">Medical Synthesizer</span></a><a class="flex items-center px-4 py-4 rounded-lg text-on-primary-container/70 hover:bg-on-primary-container/5 hover:text-on-primary transition-all gap-4" href="../../index.html"><span class="material-symbols-outlined">dashboard</span><span class="font-label-caps">Main Hub</span></a></nav><div class="px-4 py-8 border-t border-on-primary-container/10"><a class="flex items-center px-4 py-3 rounded-lg text-on-primary-container/70 hover:bg-on-primary-container/5 hover:text-on-primary transition-all gap-4 mb-2" data-path="settings" href="../../index.html"><span class="material-symbols-outlined">settings</span><span class="font-label-caps">Settings</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-primary-container/70 hover:bg-error-container hover:text-on-error-container transition-all gap-4" data-path="logout" href="../../index.html"><span class="material-symbols-outlined">logout</span><span class="font-label-caps">Logout</span></a></div></aside><div class="pl-72 w-full"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/80 backdrop-blur-xl z-40 flex items-center justify-between px-margin-desktop shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-6"><span class="font-headline-lg text-headline-lg text-primary">Core Interface</span></div><div class="flex items-center gap-gutter"><div class="flex items-center gap-unit px-4 py-2 bg-surface-container rounded-full"><span class="material-symbols-outlined text-on-surface-variant">search</span><span class="text-body-sm text-on-surface-variant">Search Records...</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><img src="../../logo.jpeg" class="w-full h-full rounded-full object-cover"/></div></div></header><main class="pt-20 min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Status Bar & Top Actions -->
+<section class="px-margin-desktop py-gutter flex justify-between items-center bg-surface">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary-container/10 rounded-full border border-secondary/20">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-caps text-secondary">Neural Engine Online</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+<span class="font-label-caps text-on-surface-variant">HIPAA Compliant Environment</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-label-caps text-on-surface-variant opacity-50">v4.2.0-Alpha</span>
+</div>
+</section>
+<!-- Hero & Narrative Section -->
+<section class="px-margin-desktop py-12 flex gap-12 items-start">
+<div class="w-2/3">
+<span class="font-label-caps text-secondary mb-4 block tracking-[0.2em]">Module 02 // Diagnostic Augmentation</span>
+<h1 class="font-display-lg text-display-lg text-primary mb-6 leading-tight max-w-2xl">
+        High-Fidelity Synthetic <br/><span class="italic text-on-primary-container">MRI Reconstruction</span>
+</h1>
+<p class="font-body-lg text-on-surface-variant max-w-xl leading-relaxed">
+        Bridge the gap in clinical datasets. Our generative adversarial network synthesizes 64x64 voxel-accurate MRI slices that maintain structural pathological integrity while ensuring zero-leakage privacy for patient re-identification risks.
+      </p>
+</div>
+<div class="w-1/3 pt-12 flex justify-end">
+<div class="relative group">
+<div class="absolute -inset-4 bg-gradient-to-tr from-secondary/10 to-transparent blur-2xl group-hover:opacity-100 transition-opacity"></div>
+<div class="relative bg-white p-6 shadow-xl rounded-xl border border-surface-variant/30 flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-secondary">shield_lock</span>
+</div>
+<span class="font-label-caps text-primary tracking-widest">Privacy Shield</span>
+<span class="text-[10px] font-label-caps text-on-surface-variant text-center">100% Differential <br/>Privacy Guarantee</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Interaction Layer -->
+<section class="px-margin-desktop pb-24 grid grid-cols-12 gap-gutter">
+<!-- Control Panel -->
+<div class="col-span-4 space-y-gutter">
+<div class="bg-white p-8 rounded-xl shadow-[0_20px_50px_rgba(39,19,16,0.04)] border border-surface-variant/50 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 -mr-16 -mt-16 rounded-full"></div>
+<div class="relative z-10">
+<h2 class="font-headline-lg text-title-md text-primary mb-8 border-b border-surface-variant pb-4">Parameter Configuration</h2>
+<div class="space-y-12">
+<!-- Slider -->
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<label class="font-label-caps text-on-surface-variant">Synthesis Batch Size</label>
+<div class="flex items-baseline gap-1">
+<span class="font-display-lg text-display-lg text-secondary leading-none" id="slider-value">48</span>
+<span class="font-label-caps text-on-surface-variant">Slices</span>
+</div>
+</div>
+<input class="w-full h-1 bg-surface-container rounded-lg appearance-none cursor-pointer accent-primary" max="100" min="1" oninput="document.getElementById('slider-value').innerText = this.value" type="range" value="48"/>
+<div class="flex justify-between font-label-caps text-[10px] text-on-surface-variant/50">
+<span>001</span>
+<span>050</span>
+<span>100</span>
+</div>
+</div>
+<!-- Resolution Info -->
+<div class="p-4 bg-surface-container-low rounded flex items-center gap-4 border-l-2 border-secondary">
+<span class="material-symbols-outlined text-primary">grid_view</span>
+<div>
+<p class="font-label-caps text-primary text-[10px]">Target Resolution</p>
+<p class="font-body-sm font-bold text-on-surface">64 x 64 px (8-bit Grayscale)</p>
+</div>
+</div>
+<!-- Main Button -->
+<button class="w-full py-5 bg-primary text-on-primary font-label-caps tracking-widest rounded-lg shadow-lg hover:bg-primary-container transition-all flex items-center justify-center gap-3 active:scale-[0.98]" onclick="simulateGeneration()">
+<span>Generate Synthetic MRIs</span>
+<span class="material-symbols-outlined text-[20px]">cognition</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Export Card -->
+<div class="bg-surface-variant/20 p-8 rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center text-center opacity-40 transition-opacity duration-500" id="export-card">
+<span class="material-symbols-outlined text-[48px] text-primary mb-4">folder_zip</span>
+<h3 class="font-title-md text-primary mb-2">Export Augmented Dataset</h3>
+<p class="text-body-sm text-on-surface-variant mb-6">Archive will contain DICOM compatible <br/>headers and metadata strings.</p>
+<button class="px-8 py-3 bg-white border border-primary text-primary font-label-caps rounded-full hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-2" disabled="">
+          Download ZIP <span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+<!-- Preview Grid -->
+<div class="col-span-8">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<h3 class="font-headline-lg text-headline-lg text-primary">Live Reconstruction</h3>
+<span class="font-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded" id="gen-counter">0 Slices Generated</span>
+</div>
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+</div>
+<div class="grid grid-cols-6 gap-2 min-h-[500px]" id="mri-grid">
+<!-- Placeholder Empty States -->
+<div class="aspect-square bg-surface-container rounded flex items-center justify-center overflow-hidden group">
+<div class="w-full h-full border border-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/10 text-[32px] scale-150 opacity-20">biotech</span>
+</div>
+</div>
+<!-- Repeating for empty grid effect -->
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+</div>
+</div>
+</section>
+<!-- Footnote -->
+<section class="px-margin-desktop py-8 border-t border-surface-variant flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-8">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant">Algorithm</span>
+<span class="font-body-sm font-semibold text-primary">S1-GAN v2.5 Stable</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant">Entropy Balance</span>
+<span class="font-body-sm font-semibold text-primary">0.9824</span>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-secondary">security</span>
+<span class="material-symbols-outlined text-secondary/40">fingerprint</span>
+<span class="material-symbols-outlined text-secondary/40">network_check</span>
+</div>
+</section>
+</div>
+<script>
+function simulateGeneration() {
+  const grid = document.getElementById('mri-grid');
+  const count = document.querySelector('input[type="range"]').value;
+  const counter = document.getElementById('gen-counter');
+  const exportCard = document.getElementById('export-card');
+  const exportBtn = exportCard.querySelector('button');
+
+  // Clear grid
+  grid.innerHTML = '';
+  counter.innerText = 'Generating...';
+  exportCard.classList.add('opacity-40');
+  exportBtn.disabled = true;
+
+  let generated = 0;
+  
+  const interval = setInterval(() => {
+    if (generated >= count) {
+      clearInterval(interval);
+      counter.innerText = `${count} Slices Synthesized`;
+      exportCard.classList.remove('opacity-40');
+      exportBtn.disabled = false;
+      return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'aspect-square bg-primary-container relative overflow-hidden animate-pulse opacity-0 transition-opacity duration-500';
+    
+    const img = document.createElement('img');
+    img.src = 'placeholder';
+    img.className = 'w-full h-full object-cover grayscale opacity-80 mix-blend-screen';
+    img.setAttribute('data-alt', 'A 64x64 pixel abstract grayscale MRI scan slice showing neural pathways or brain structures. The image is professional, medical-grade, and features high contrast between dark tissue and lighter cranial features. Deep moody aesthetic, centered composition, scientific diagnostic detail.');
+    
+    div.appendChild(img);
+    grid.appendChild(div);
+    
+    // Trigger entrance animation
+    setTimeout(() => {
+        div.classList.remove('opacity-0', 'animate-pulse');
+    }, 50);
+
+    generated++;
+    counter.innerText = `${generated} Slices Generated`;
+  }, 30);
+}
+</script></main></div></body></html>
