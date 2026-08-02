@@ -15,7 +15,11 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.stats import entropy
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+# Resolve paths relative to project root (one level above webapp/)
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WEBAPP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, static_folder=WEBAPP_DIR, static_url_path='')
 
 @app.after_request
 def add_cors_headers(resp):
@@ -34,7 +38,7 @@ FEATURE_NAMES = ['smsin', 'smsout', 'callin', 'callout', 'internet']
 dataset_stats = {
     'mu': np.array([1.25, 0.98, 0.45, 0.38, 38.45], dtype=np.float32),
     'std': np.array([2.10, 1.85, 0.92, 0.78, 42.10], dtype=np.float32),
-    'filename': 'sms-call-internet-mi-2013-11-01.csv',
+    'filename': os.path.join(ROOT_DIR, 'sms-call-internet-mi-2013-11-01.csv'),
     'total_rows': 1891928
 }
 
@@ -62,6 +66,32 @@ def build_tabular_critic(input_dim=5):
 tabular_generator = build_tabular_generator()
 tabular_critic = build_tabular_critic()
 
+def _auto_load_tabular_weights():
+    paths_g = [
+        os.path.join(ROOT_DIR, 'saved_weights/gen_tabular_5g.weights.h5'),
+        os.path.join(ROOT_DIR, 'gen_tabular_5g.weights.h5'),
+    ]
+    paths_c = [
+        os.path.join(ROOT_DIR, 'saved_weights/critic_tabular_5g.weights.h5'),
+        os.path.join(ROOT_DIR, 'critic_tabular_5g.weights.h5'),
+    ]
+    for pg, pc in zip(paths_g, paths_c):
+        if os.path.exists(pg) and os.path.exists(pc):
+            try:
+                _ = tabular_generator(tf.zeros([1, LATENT_DIM_TABULAR]))
+                _ = tabular_critic(tf.zeros([1, 5]))
+                tabular_generator.load_weights(pg)
+                tabular_critic.load_weights(pc)
+                print(f"[Auto-load 5G Tabular] Successfully loaded weights from {pg}")
+                return True
+            except Exception as e:
+                print(f"[Auto-load 5G Tabular] Failed loading {pg}: {e}")
+    print("[Auto-load 5G Tabular] No pre-trained tabular weights found.")
+    return False
+
+_auto_load_tabular_weights()
+
+
 def init_real_dataset():
     global real_data_sample, dataset_stats
     file_path = dataset_stats['filename']
@@ -88,18 +118,18 @@ init_real_dataset()
 # Dataset: Training/ & Testing/ with glioma, meningioma, notumor, pituitary
 # ==============================================================================
 
-NZ_MRI       = 200          # Latent noise dimension (from user code: nz=200)
+NZ_MRI       = 200          # Latent noise dimension (nz=200)
 MRI_IMG_SIZE = 64           # Output resolution 64x64x1
-MRI_LAMBDA   = 10           # Gradient penalty weight (from user code)
+MRI_LAMBDA   = 10           # Gradient penalty weight
 MRI_N_CRITIC = 5            # Train critic 5x per generator step (standard WGAN-GP)
-MRI_LR_G     = 0.00005      # Adam lr for generator (from user code: 5e-5)
-MRI_LR_D     = 0.00005      # Adam lr for critic
-MRI_BETA1    = 0.5          # Adam beta1 (from user code)
-MRI_BETA2    = 0.9          # Adam beta2 (from user code)
+MRI_LR_G     = 0.0002       # Adam lr for generator (updated for WGAN-GP convergence: 2e-4)
+MRI_LR_D     = 0.0002       # Adam lr for critic (updated for WGAN-GP convergence: 2e-4)
+MRI_BETA1    = 0.5          # Adam beta1
+MRI_BETA2    = 0.9          # Adam beta2
 MRI_BATCH    = 32           # Batch size for training
 
 MRI_CLASSES  = ['glioma', 'meningioma', 'notumor', 'pituitary']
-WEIGHTS_DIR  = 'saved_weights'
+WEIGHTS_DIR  = os.path.join(ROOT_DIR, 'saved_weights')
 
 # Training state (shared across threads)
 mri_train_state = {
@@ -129,7 +159,7 @@ mri_dataset_registry = {
 def scan_mri_dataset():
     for split in ['Training', 'Testing']:
         for cls in MRI_CLASSES:
-            p = os.path.join(split, cls)
+            p = os.path.join(ROOT_DIR, split, cls)
             if os.path.exists(p):
                 files = glob.glob(os.path.join(p, '*.jpg')) + \
                         glob.glob(os.path.join(p, '*.jpeg')) + \
@@ -143,7 +173,7 @@ scan_mri_dataset()
 
 def load_mri_images(tumor_class, split='Training', max_images=1400):
     """Load and preprocess real MRI images for a given class into numpy array.
-    Returns array of shape (N, 64, 64, 1) normalized to [0, 1].
+    Returns array of shape (N, 64, 64, 1) normalized to [-1, 1].
     """
     cache_key = f"{split}_{tumor_class}"
     if cache_key in _mri_image_cache:
@@ -160,7 +190,8 @@ def load_mri_images(tumor_class, split='Training', max_images=1400):
     for fp in files:
         try:
             img = Image.open(fp).convert('L').resize((MRI_IMG_SIZE, MRI_IMG_SIZE), Image.BILINEAR)
-            arr = np.array(img, dtype=np.float32) / 255.0
+            # Normalize pixel intensities from [0, 255] to [-1, 1] for Tanh activation
+            arr = (np.array(img, dtype=np.float32) / 127.5) - 1.0
             imgs.append(arr)
         except Exception:
             continue
@@ -170,23 +201,23 @@ def load_mri_images(tumor_class, split='Training', max_images=1400):
 
     data = np.stack(imgs, axis=0)[:, :, :, np.newaxis]  # (N, 64, 64, 1)
     _mri_image_cache[cache_key] = data
-    print(f"Loaded {len(data)} {split}/{tumor_class} MRI images into cache.")
+    print(f"Loaded {len(data)} {split}/{tumor_class} MRI images into cache (normalized to [-1, 1]).")
     return data
 
 
 # -----------------------------------------------------------------------
-# WGAN-GP Model Architectures (exact user spec)
+# WGAN-GP Model Architectures
 # -----------------------------------------------------------------------
 
 def build_mri_generator(nz=NZ_MRI):
     """
-    Generator (User Lasagne code -> TF2 Keras):
+    Generator (Deconv Architecture):
       Input: z in R^200
       Dense(1024*4*4) -> Reshape(4,4,1024)
       Conv2DTranspose(512, 4, s=2, same) + BN + ReLU  -> 8x8x512
       Conv2DTranspose(256, 4, s=2, same) + BN + ReLU  -> 16x16x256
       Conv2DTranspose(128, 4, s=2, same) + BN + ReLU  -> 32x32x128
-      Conv2DTranspose(  1, 4, s=2, same) + Sigmoid    -> 64x64x1
+      Conv2DTranspose(  1, 4, s=2, same) + Tanh        -> 64x64x1 [-1, 1] output
     """
     inp = layers.Input(shape=(nz,))
     x = layers.Dense(1024 * 4 * 4, use_bias=False)(inp)
@@ -203,45 +234,64 @@ def build_mri_generator(nz=NZ_MRI):
     x = layers.Conv2DTranspose(128, 4, strides=2, padding='same', use_bias=False)(x)
     x = layers.BatchNormalization()(x)
     x = layers.ReLU()(x)
-    # Block 4: 32->64
-    x = layers.Conv2DTranspose(1, 4, strides=2, padding='same', activation='sigmoid')(x)
+    # Block 4: 32->64 (Tanh activation)
+    x = layers.Conv2DTranspose(1, 4, strides=2, padding='same', activation='tanh')(x)
     return models.Model(inp, x, name='WGANGP_Generator')
 
 def build_mri_critic(img_shape=(MRI_IMG_SIZE, MRI_IMG_SIZE, 1)):
     """
-    Critic / Discriminator (User Lasagne code -> TF2 Keras):
+    Critic / Discriminator (No BatchNormalization for 1-Lipschitz condition):
       Input: 64x64x1
-      Conv2D(128, 5, s=2, same) + BN + LReLU(0.2) -> 32x32x128
-      Conv2D(256, 5, s=2, same) + BN + LReLU(0.2) -> 16x16x256
-      Conv2D(512, 5, s=2, same) + BN + LReLU(0.2) ->  8x8x512
-      Conv2D(1024,5, s=2, same) + BN + LReLU(0.2) ->  4x4x1024
-      Flatten -> Dense(1)  [no sigmoid - Wasserstein output]
+      Conv2D(128, 5, s=2, same) + LReLU(0.2) -> 32x32x128
+      Conv2D(256, 5, s=2, same) + LReLU(0.2) -> 16x16x256
+      Conv2D(512, 5, s=2, same) + LReLU(0.2) ->  8x8x512
+      Conv2D(1024,5, s=2, same) + LReLU(0.2) ->  4x4x1024
+      Flatten -> Dense(1)  [no activation, no BN - Wasserstein score output]
     """
     inp = layers.Input(shape=img_shape)
-    x = layers.Conv2D(128,  5, strides=2, padding='same', use_bias=False)(inp)
-    x = layers.BatchNormalization()(x)
+    # Batch Normalization is removed from Critic to avoid sample dependencies and satisfy 1-Lipschitz condition
+    x = layers.Conv2D(128,  5, strides=2, padding='same', use_bias=True)(inp)
     x = layers.LeakyReLU(0.2)(x)
-    x = layers.Conv2D(256,  5, strides=2, padding='same', use_bias=False)(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(256,  5, strides=2, padding='same', use_bias=True)(x)
     x = layers.LeakyReLU(0.2)(x)
-    x = layers.Conv2D(512,  5, strides=2, padding='same', use_bias=False)(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(512,  5, strides=2, padding='same', use_bias=True)(x)
     x = layers.LeakyReLU(0.2)(x)
-    x = layers.Conv2D(1024, 5, strides=2, padding='same', use_bias=False)(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(1024, 5, strides=2, padding='same', use_bias=True)(x)
     x = layers.LeakyReLU(0.2)(x)
     x = layers.Flatten()(x)
-    x = layers.Dense(1)(x)  # Wasserstein: no activation
+    x = layers.Dense(1)(x)  # Wasserstein score (linear output)
     return models.Model(inp, x, name='WGANGP_Critic')
 
 mri_generator = build_mri_generator()
 mri_critic    = build_mri_critic()
 
-# Optimizers: Adam with user-specified lr=5e-5, beta1=0.5, beta2=0.9
+# Optimizers: Adam with lr=2e-4, beta1=0.5, beta2=0.9
 mri_g_optimizer = tf.keras.optimizers.Adam(learning_rate=MRI_LR_G, beta_1=MRI_BETA1, beta_2=MRI_BETA2)
 mri_d_optimizer = tf.keras.optimizers.Adam(learning_rate=MRI_LR_D, beta_1=MRI_BETA1, beta_2=MRI_BETA2)
 
 latest_montage_bytes = None
+
+# ── Auto-load saved weights on startup ──────────────────────────────────
+def _auto_load_weights():
+    """Load the first available saved weights class on startup."""
+    for cls in MRI_CLASSES:
+        gp = find_weight_file('gen', cls)
+        cp = find_weight_file('critic', cls)
+        if gp and cp:
+            try:
+                _ = mri_generator(tf.zeros([1, NZ_MRI]), training=False)
+                _ = mri_critic(tf.zeros([1, MRI_IMG_SIZE, MRI_IMG_SIZE, 1]), training=False)
+                mri_generator.load_weights(gp)
+                mri_critic.load_weights(cp)
+                mri_train_state['trained_class'] = cls
+                print(f"[Auto-load] Weights for '{cls}' loaded: G={gp}, C={cp}")
+                return True
+            except Exception as e:
+                print(f"[Auto-load] Failed for '{cls}': {e}")
+    print("[Auto-load] No saved weights found — generator using random weights.")
+    return False
+
+
 
 # -----------------------------------------------------------------------
 # WGAN-GP core: gradient penalty
@@ -290,6 +340,18 @@ def train_generator_step(batch_size, nz):
 # Weight save/load helpers
 # -----------------------------------------------------------------------
 
+def find_weight_file(prefix, tumor_class):
+    candidates = [
+        os.path.join(WEIGHTS_DIR, f'{prefix}_{tumor_class}.weights.h5'),
+        os.path.join(WEIGHTS_DIR, f'{prefix}_{tumor_class}.h5'),
+        f'{prefix}_{tumor_class}.weights.h5',
+        f'{prefix}_{tumor_class}.h5',
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
 def save_weights(tumor_class):
     os.makedirs(WEIGHTS_DIR, exist_ok=True)
     mri_generator.save_weights(os.path.join(WEIGHTS_DIR, f'gen_{tumor_class}.weights.h5'))
@@ -297,22 +359,24 @@ def save_weights(tumor_class):
     print(f"Weights saved for class: {tumor_class}")
 
 def load_weights(tumor_class):
-    gp = os.path.join(WEIGHTS_DIR, f'gen_{tumor_class}.weights.h5')
-    cp = os.path.join(WEIGHTS_DIR, f'critic_{tumor_class}.weights.h5')
-    if os.path.exists(gp) and os.path.exists(cp):
+    gp = find_weight_file('gen', tumor_class)
+    cp = find_weight_file('critic', tumor_class)
+    if gp and cp:
         # Build models first by running a dummy forward pass
         _ = mri_generator(tf.zeros([1, NZ_MRI]), training=False)
         _ = mri_critic(tf.zeros([1, MRI_IMG_SIZE, MRI_IMG_SIZE, 1]), training=False)
         mri_generator.load_weights(gp)
         mri_critic.load_weights(cp)
-        print(f"Loaded saved weights for class: {tumor_class}")
+        print(f"Loaded saved weights for class '{tumor_class}' from G: {gp}, C: {cp}")
         return True
     return False
 
 def list_saved_classes():
-    if not os.path.exists(WEIGHTS_DIR):
-        return []
-    return [c for c in MRI_CLASSES if os.path.exists(os.path.join(WEIGHTS_DIR, f'gen_{c}.weights.h5'))]
+    saved = []
+    for c in MRI_CLASSES:
+        if find_weight_file('gen', c):
+            saved.append(c)
+    return saved
 
 # -----------------------------------------------------------------------
 # Montage helper (matches user's create_montage function)
@@ -338,10 +402,10 @@ def create_montage_image(images, grid=10):
     return buf.getvalue()
 
 def gen_sample_images(n=100):
-    """Generate n synthetic MRI images, returns (N, H, W) in [0,1]."""
+    """Generate n synthetic MRI images, returns (N, H, W) rescaled to [0, 1]."""
     noise = tf.random.normal([n, NZ_MRI])
-    imgs  = mri_generator(noise, training=False).numpy()  # (N,64,64,1)
-    return imgs[:, :, :, 0]
+    imgs  = mri_generator(noise, training=False).numpy()  # (N,64,64,1) in [-1, 1]
+    return np.clip((imgs[:, :, :, 0] + 1.0) / 2.0, 0.0, 1.0)
 
 # -----------------------------------------------------------------------
 # Approximate FID: compare pixel-level feature means/stds
@@ -669,6 +733,7 @@ def api_load_weights():
 
 @app.route('/api/synthesize/dcgan_mri', methods=['POST'])
 def synthesize_dcgan_mri():
+    from PIL import ImageFilter, ImageEnhance
     data_req    = request.get_json() or {}
     batch_size  = min(16, max(1, int(data_req.get('batch_size', 8))))
     tumor_class = data_req.get('tumor_class', 'glioma')
@@ -678,15 +743,23 @@ def synthesize_dcgan_mri():
 
     slices = []
     for i in range(batch_size):
-        arr     = (mri_tensors[i, :, :, 0] * 255.0).clip(0, 255).astype(np.uint8)
-        pil_img = Image.fromarray(arr, mode='L').resize((128, 128), Image.NEAREST)
-        buf     = io.BytesIO()
+        raw = mri_tensors[i, :, :, 0]  # [-1, 1]
+        # Normalize to [0, 255]
+        arr = ((raw + 1.0) * 127.5).clip(0, 255).astype(np.uint8)
+        pil_img = Image.fromarray(arr, mode='L')
+        # Upsample to 256x256 with LANCZOS (best quality anti-aliased)
+        pil_img = pil_img.resize((256, 256), Image.LANCZOS)
+        # Sharpen to counteract GAN softness
+        pil_img = pil_img.filter(ImageFilter.UnsharpMask(radius=1.5, percent=120, threshold=3))
+        # Boost contrast slightly
+        pil_img = ImageEnhance.Contrast(pil_img).enhance(1.25)
+        buf = io.BytesIO()
         pil_img.save(buf, format='PNG')
         encoded = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
         slices.append({
             'slice_index': i + 1,
             'tumor_class': tumor_class,
-            'resolution':  '64x64 (displayed 128x128)',
+            'resolution':  '256x256 (sharpened)',
             'latent_nz':   200,
             'image_url':   encoded,
         })
@@ -761,10 +834,11 @@ def synthesize_telecom():
     noise       = tf.random.normal([num_samples, LATENT_DIM_TABULAR])
     z_norm      = tabular_generator(noise, training=False).numpy()
     mu, std     = dataset_stats['mu'], dataset_stats['std']
+    real_norm   = (real_data_sample - mu) / std if real_data_sample is not None else None
     synthetic_vals = np.maximum(0, z_norm * std + mu)
     df_synth    = pd.DataFrame(synthetic_vals, columns=FEATURE_NAMES)
     latest_synthetic_df = df_synth
-    metrics     = compute_metrics(real_data_sample, z_norm)
+    metrics     = compute_metrics(real_norm, z_norm)
     samples     = [{'sample_index': i+1, 'smsin': round(float(synthetic_vals[i,0]),4),
                     'smsout': round(float(synthetic_vals[i,1]),4),
                     'callin': round(float(synthetic_vals[i,2]),4),
@@ -810,5 +884,6 @@ def download_csv():
                      download_name='wgan_gp_synthetic_5g_healthcare_data.csv')
 
 if __name__ == '__main__':
-    print("Starting Synthesis Hub WGAN-GP Flask Server on http://localhost:5000...")
-    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+    _auto_load_weights()
+    print("Starting Synthesis Hub WGAN-GP Flask Server on http://localhost:5001...")
+    app.run(host='0.0.0.0', port=5001, debug=False, threaded=True)

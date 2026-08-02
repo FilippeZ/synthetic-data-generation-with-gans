@@ -1,20 +1,44 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-.ipynb_checkpoints
+.ipynb_checkpoints/
 .env
 .venv
 env/
 venv/
-saved_weights/
-montages/
+
+# Large datasets (not committed)
+sms-call-internet-mi-2013-11-01.csv
+Training/
+Testing/
+
+# Large media files
+*.mp4
+*.pptx
+
+# Large MRI weights (only 5G weights committed)
+saved_weights/gen_glioma.weights.h5
+saved_weights/critic_glioma.weights.h5
+saved_weights/gen_meningioma.weights.h5
+saved_weights/critic_meningioma.weights.h5
+saved_weights/gen_pituitary.weights.h5
+saved_weights/critic_pituitary.weights.h5
+saved_weights/gen_notumor.weights.h5
+saved_weights/critic_notumor.weights.h5
+critic_glioma.weights.h5
+gen_glioma.weights.h5
+
+# Old root-level synthetic output dirs
 synthetic_glioma/
 synthetic_meningioma/
 synthetic_notumor/
 synthetic_pituitary/
-*.mp4
-*.pptx
-sms-call-internet-mi-2013-11-01.csv
-Training/
-Testing/
+montages/
+
+# Helper/scratch scripts
 _make_mri_notebook.py
+_test_endpoints.py
+
+# Node
+node_modules/

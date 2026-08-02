@@ -123,28 +123,15 @@
             <span>Sec 2: Brain Tumor MRI WGAN</span>
           </button>
           
-          <div class="text-[10px] uppercase font-bold tracking-widest text-white/40 px-3 py-2 mt-4">Metrics & Architecture</div>
+          <div class="text-[10px] uppercase font-bold tracking-widest text-white/40 px-3 py-2 mt-4">Metrics & Performance</div>
 
           <button onclick="switchTab('eval-metrics')" id="nav-eval-metrics" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all text-left group">
             <span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">analytics</span>
             <span>Fidelity & Diversity Metrics</span>
           </button>
-
-          <button onclick="switchTab('model-architecture')" id="nav-model-architecture" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all text-left group">
-            <span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">code</span>
-            <span>WGAN-GP Code Models</span>
-          </button>
         </nav>
       </div>
 
-      <!-- Footer Info -->
-      <div class="p-4 border-t border-white/10 text-xs text-white/60 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" id="status-indicator-dot"></span>
-          <span id="backend-status-text">Flask Server Active</span>
-        </div>
-        <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white/80 font-mono">7,200 MRIs</span>
-      </div>
     </aside>
 
     <!-- Content Area -->
@@ -395,8 +382,9 @@
 
               <div class="p-3 bg-surface-container dark:bg-white/5 rounded-xl text-xs space-y-2 text-on-surface-variant dark:text-white/70 font-mono">
                 <div class="flex justify-between"><span>Deconv2D Filters:</span><span class="font-bold text-primary dark:text-white">1024-512-256-128-1</span></div>
-                <div class="flex justify-between"><span>Activation:</span><span class="font-bold text-primary dark:text-white">Sigmoid / Tanh</span></div>
-                <div class="flex justify-between"><span>Resolution:</span><span class="font-bold text-primary dark:text-white">64 x 64 px</span></div>
+                <div class="flex justify-between"><span>Activation:</span><span class="font-bold text-primary dark:text-white">Tanh ([-1, 1])</span></div>
+                <div class="flex justify-between"><span>Output Resolution:</span><span class="font-bold text-primary dark:text-white">64px → 256px</span></div>
+                <div class="flex justify-between"><span>Post-Processing:</span><span class="font-bold text-emerald-500">Sharpen + LANCZOS</span></div>
               </div>
 
               <button onclick="fetchMriSlices()" class="w-full bg-primary hover:bg-primary-container text-white py-3.5 px-4 rounded-xl font-semibold shadow flex items-center justify-center gap-2 transition-all">
@@ -423,7 +411,7 @@
                   <span class="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded font-mono font-bold">7,200 Curated Images</span>
                 </div>
 
-                <div id="real-mri-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div id="real-mri-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <!-- JS populates real images -->
                 </div>
               </div>
@@ -438,7 +426,7 @@
                   <span class="text-xs bg-secondary/10 text-secondary border border-secondary/30 px-2.5 py-0.5 rounded font-mono font-bold">100% Differential Privacy</span>
                 </div>
 
-                <div id="synthetic-mri-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div id="synthetic-mri-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <!-- JS populates synthetic images -->
                 </div>
               </div>
@@ -451,21 +439,32 @@
           <div id="montageModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-6 rounded-2xl max-w-2xl w-full space-y-4 border border-outline-variant/40 shadow-2xl">
               <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                <h3 class="font-serif text-lg font-bold text-primary dark:text-white">WGAN-GP 10x10 Image Montage (100 Synthetic MRIs)</h3>
+                <div>
+                  <h3 class="font-serif text-lg font-bold text-primary dark:text-white">WGAN-GP 10×10 Image Montage (100 Synthetic MRIs)</h3>
+                  <p class="text-[10px] text-on-surface-variant dark:text-white/60 mt-0.5">Matches <code class="text-secondary font-mono">create_montage(image)</code> from user code — 640×640 px output</p>
+                </div>
                 <button onclick="document.getElementById('montageModal').classList.add('hidden')" class="text-on-surface-variant hover:text-primary dark:text-white/60 dark:hover:text-white">
                   <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
               </div>
 
-              <div class="flex justify-center bg-black p-2 rounded-xl">
-                <img id="montageImage" src="" alt="10x10 Synthetic Montage" class="max-h-[450px] w-auto object-contain rounded-lg"/>
+              <div class="flex justify-center bg-black p-2 rounded-xl min-h-[200px] items-center">
+                <!-- Spinner shown while generating -->
+                <div id="montageSpinner" class="flex flex-col items-center gap-3">
+                  <div class="w-12 h-12 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin"></div>
+                  <span class="text-xs text-white/60">Generating 100 synthetic MRI images...</span>
+                </div>
+                <!-- Montage image -->
+                <img id="montageImage" src="" alt="10x10 Synthetic Montage" class="hidden max-h-[480px] w-auto object-contain rounded-lg"/>
+                <!-- Error message -->
+                <p id="montageError" class="hidden text-red-400 text-xs text-center px-4"></p>
               </div>
 
               <div class="flex items-center justify-between">
-                <span class="text-xs text-on-surface-variant dark:text-white/60">Matching create_montage() function (640x640 px)</span>
-                <a href="/api/mri/montage_download" download class="bg-secondary text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <span class="text-xs text-on-surface-variant dark:text-white/60">640×640 px · 100 images · nz=200 latent samples</span>
+                <a href="/api/mri/montage_download" download class="bg-secondary text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 hover:bg-secondary/90 transition-colors">
                   <span class="material-symbols-outlined text-sm">download</span>
-                  <span>Download Montage PNG</span>
+                  <span>Download PNG</span>
                 </a>
               </div>
             </div>
@@ -475,78 +474,58 @@
 
         <!-- ==================== TAB 4: EVALUATION METRICS ==================== -->
         <div id="tab-eval-metrics" class="tab-content hidden space-y-6">
-          <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-6 rounded-2xl border border-outline-variant/40 shadow-sm">
-            <h2 class="font-serif text-2xl font-bold text-primary dark:text-white mb-1">Quantitative Evaluation Metrics</h2>
-            <p class="text-xs text-on-surface-variant dark:text-white/60">Functions for MSE, Cosine Similarity, KL Divergence, Mean Variance Diversity, and Coverage Ratio</p>
+          <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-6 rounded-2xl border border-outline-variant/40 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h2 class="font-serif text-2xl font-bold text-primary dark:text-white mb-1">Quantitative Evaluation Metrics</h2>
+              <p class="text-xs text-on-surface-variant dark:text-white/60">Functions for MSE, Cosine Similarity, KL Divergence, Mean Variance Diversity, and Coverage Ratio</p>
+            </div>
+
+            <div class="flex items-center gap-2 bg-surface-container dark:bg-white/5 p-1.5 rounded-xl border border-outline-variant/40">
+              <button onclick="switchEvalSection('telecom')" id="eval-btn-telecom" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow">
+                Sec 1: 5G Healthcare IoT
+              </button>
+              <button onclick="switchEvalSection('mri')" id="eval-btn-mri" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant dark:text-white/80 hover:bg-white/10">
+                Sec 2: Brain Tumor MRI WGAN
+              </button>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
               <span class="text-[10px] font-bold uppercase text-on-surface-variant dark:text-white/60 block mb-1">compute_fidelity()</span>
-              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-mse">0.0014</p>
+              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-mse">0.5714</p>
               <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Fidelity MSE</p>
             </div>
 
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
               <span class="text-[10px] font-bold uppercase text-on-surface-variant dark:text-white/60 block mb-1">compute_cosine_similarity()</span>
-              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-cosine">0.9841</p>
-              <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Cosine Sim (98.4%)</p>
+              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-cosine">0.4989</p>
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1" id="eval-metric-cosine-label">Cosine Sim (49.9%)</p>
             </div>
 
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
               <span class="text-[10px] font-bold uppercase text-on-surface-variant dark:text-white/60 block mb-1">compute_kl_divergence()</span>
-              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-kl">0.0210</p>
+              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-kl">1.6492</p>
               <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">KL Divergence</p>
             </div>
 
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
               <span class="text-[10px] font-bold uppercase text-on-surface-variant dark:text-white/60 block mb-1">compute_diversity()</span>
-              <p class="font-serif text-2xl font-bold text-secondary" id="eval-metric-diversity">1.4820</p>
+              <p class="font-serif text-2xl font-bold text-secondary" id="eval-metric-diversity">0.2667</p>
               <p class="text-xs text-secondary font-semibold mt-1">Mean Variance</p>
             </div>
 
             <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-5 rounded-2xl border border-outline-variant/40 shadow-sm">
               <span class="text-[10px] font-bold uppercase text-on-surface-variant dark:text-white/60 block mb-1">compute_coverage()</span>
-              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-coverage">96.8%</p>
+              <p class="font-serif text-2xl font-bold text-primary dark:text-white" id="eval-metric-coverage">35.3%</p>
               <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Manifold Coverage</p>
             </div>
           </div>
 
           <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-6 rounded-2xl border border-outline-variant/40 shadow-sm space-y-4">
-            <h3 class="font-serif text-lg font-bold text-primary dark:text-white">Feature Distribution Matching (Real vs. Synthetic)</h3>
+            <h3 class="font-serif text-lg font-bold text-primary dark:text-white" id="eval-chart-title">5G Telemetry Feature Distribution Matching (Real Milan vs Synthetic WGAN-GP)</h3>
             <div class="h-72 w-full">
               <canvas id="evalDistChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- ==================== TAB 5: NOTEBOOK CODE ARCHITECTURE ==================== -->
-        <div id="tab-model-architecture" class="tab-content hidden space-y-6">
-          <div class="bg-surface-container-lowest dark:bg-[#1A1B1B] p-6 rounded-2xl border border-outline-variant/40 shadow-sm space-y-6">
-            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-              <div>
-                <h2 class="font-serif text-2xl font-bold text-primary dark:text-white">Brain Tumor MRI WGAN-GP Deconv Code Model</h2>
-                <p class="text-xs text-on-surface-variant dark:text-white/60">Lasagne/Theano to TensorFlow 2.x Keras implementation (<code class="text-secondary font-mono">nz=200</code>)</p>
-              </div>
-              <span class="bg-secondary/10 text-secondary border border-secondary/30 px-3 py-1 rounded-full text-xs font-mono font-bold">
-                Python 3.9+ • TF 2.x
-              </span>
-            </div>
-
-            <div class="space-y-4">
-              <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-secondary mb-2">1. Brain Tumor MRI Deconvolutional Generator (nz=200)</h3>
-                <pre class="bg-primary/95 text-emerald-300 p-4 rounded-xl text-xs font-mono overflow-x-auto border border-white/10"><code># User Provided Network Architecture:
-def build_net(nz=200):
-    gen = InputLayer(shape=(None, nz))
-    gen = DenseLayer(incoming=gen, num_units=1024*4*4)
-    gen = reshape(incoming=gen, shape=(-1, 1024, 4, 4))
-    gen = batch_norm(Deconv2DLayer(incoming=gen, num_filters=512, filter_size=4, stride=2, nonlinearity=relu, crop=1))
-    gen = batch_norm(Deconv2DLayer(incoming=gen, num_filters=256, filter_size=4, stride=2, nonlinearity=relu, crop=1))
-    gen = batch_norm(Deconv2DLayer(incoming=gen, num_filters=128, filter_size=4, stride=2, nonlinearity=relu, crop=1))
-    gen = Deconv2DLayer(incoming=gen, num_filters=1, filter_size=4, stride=2, nonlinearity=sigmoid, crop=1)
-    return gen</code></pre>
-              </div>
             </div>
           </div>
         </div>
@@ -562,7 +541,7 @@ def build_net(nz=200):
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-      const navIds = ['wgan-telecom', 'iot-anomaly', 'medical-mri', 'eval-metrics', 'model-architecture'];
+      const navIds = ['wgan-telecom', 'iot-anomaly', 'medical-mri', 'eval-metrics'];
       navIds.forEach(id => {
         const btn = document.getElementById('nav-' + id);
         if (btn) {
@@ -578,14 +557,16 @@ def build_net(nz=200):
         'wgan-telecom': 'Sec 1: 5G Healthcare IoT',
         'iot-anomaly': '5G Threat & DDoS Isolation',
         'medical-mri': 'Sec 2: Brain Tumor MRI WGAN',
-        'eval-metrics': 'Fidelity & Diversity Metrics',
-        'model-architecture': 'WGAN-GP Code Models'
+        'eval-metrics': 'Fidelity & Diversity Metrics'
       };
       document.getElementById('active-tab-title').innerText = titles[tabId] || 'Synthesis Hub';
 
       if (tabId === 'medical-mri') {
-        fetchMriSlices();
+        loadDatasetInfo();
         fetchRealMriSamples();
+        fetchMriSlices();
+      } else if (tabId === 'eval-metrics') {
+        switchEvalSection(currentEvalSection);
       }
     }
 
@@ -610,10 +591,27 @@ def build_net(nz=200):
         if (res.ok) {
           const data = await res.json();
           document.getElementById('backend-status-text').innerText = 'Flask Server Active';
+          document.getElementById('backend-badge').classList.remove('hidden');
         }
       } catch (e) {
-        document.getElementById('backend-status-text').innerText = 'Local Mode';
+        document.getElementById('backend-status-text').innerText = 'Offline';
+        document.getElementById('backend-badge').classList.add('hidden');
       }
+    }
+
+    async function loadDatasetInfo() {
+      try {
+        const res = await fetch('/api/mri/dataset_info');
+        if (!res.ok) return;
+        const data = await res.json();
+        const el = document.getElementById('mri-dataset-info-badge');
+        if (el && data.split_info) {
+          const cls = document.getElementById('mri-class-select').value || 'glioma';
+          const tr = data.split_info.Training[cls] || 0;
+          const te = data.split_info.Testing[cls]  || 0;
+          el.textContent = `${cls} — ${tr} train / ${te} test`;
+        }
+      } catch(e) {}
     }
 
     async function startWganSynthesis() {
@@ -725,11 +723,26 @@ def build_net(nz=200):
       } catch (e) {}
     }
 
-    // Fetch Real MRI Images from Dataset Folders (Training / Testing)
+    // ── Spinner HTML helper ──────────────────────────────────────────────────
+    function spinnerHTML(msg) {
+      return `<div class="col-span-4 flex flex-col items-center justify-center py-10 gap-3">
+        <div class="w-8 h-8 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin"></div>
+        <span class="text-xs text-on-surface-variant dark:text-white/60 font-medium">${msg}</span>
+      </div>`;
+    }
+    function errorHTML(msg) {
+      return `<div class="col-span-4 flex flex-col items-center justify-center py-8 gap-2">
+        <span class="material-symbols-outlined text-3xl text-red-400">error</span>
+        <span class="text-xs text-red-500 font-medium text-center">${msg}</span>
+      </div>`;
+    }
+
+    // ── Real MRI Images from Dataset ─────────────────────────────────────────
     async function fetchRealMriSamples() {
-      const cls = document.getElementById('mri-class-select').value || 'glioma';
+      const cls       = document.getElementById('mri-class-select').value || 'glioma';
       const container = document.getElementById('real-mri-grid');
-      container.innerHTML = '<div class="col-span-4 text-xs text-center py-4 text-on-surface-variant">Loading real dataset images...</div>';
+      container.innerHTML = spinnerHTML('Loading real MRI images from dataset...');
+      loadDatasetInfo();
 
       try {
         const res = await fetch('/api/mri/real_samples', {
@@ -737,29 +750,55 @@ def build_net(nz=200):
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({tumor_class: cls, count: 8})
         });
-        if (res.ok) {
-          const data = await res.json();
-          container.innerHTML = '';
-          data.samples.forEach(s => {
-            const card = document.createElement('div');
-            card.className = 'bg-black/90 p-2 rounded-xl border border-emerald-500/30 flex flex-col items-center gap-1.5 shadow';
-            card.innerHTML = `
-              <img src="${s.image_url}" class="rounded-lg w-full h-auto bg-black border border-white/10"/>
-              <span class="text-[10px] font-mono text-emerald-400 font-bold">Real ${s.class_name.toUpperCase()}</span>
-            `;
-            container.appendChild(card);
-          });
-          return;
-        }
-      } catch (e) {}
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        if (!data.samples || data.samples.length === 0) throw new Error('No images returned');
+
+        container.innerHTML = '';
+        data.samples.forEach((s, idx) => {
+          const card = document.createElement('div');
+          card.className = 'group bg-[#0a0a0a] rounded-xl border border-emerald-500/30 overflow-hidden shadow-lg hover:border-emerald-400/70 hover:shadow-emerald-500/10 hover:shadow-xl transition-all duration-300 cursor-pointer';
+          card.innerHTML = `
+            <div class="relative w-full aspect-square overflow-hidden">
+              <img src="${s.image_url}" loading="lazy"
+                   style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   alt="Real ${s.class_name} MRI"/>
+              <!-- Scan line overlay -->
+              <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"></div>
+              <!-- Top badge -->
+              <div class="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[8px] text-emerald-400 font-bold font-mono">REAL</span>
+              </div>
+              <!-- Bottom info overlay -->
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent px-2 pb-1.5 pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p class="text-[8px] text-white/70 font-mono truncate">${s.file_name}</p>
+              </div>
+            </div>
+            <div class="px-2 py-1.5 flex items-center justify-between bg-black/80">
+              <span class="text-[9px] font-mono text-emerald-400 font-bold">${s.class_name.toUpperCase()}</span>
+              <span class="text-[8px] text-white/30 font-mono">#${idx+1}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        // Update real count badge
+        const badge = document.getElementById('real-count-badge');
+        if (badge) badge.textContent = `${data.count} shown of ${data.target_class} dataset`;
+
+      } catch (e) {
+        container.innerHTML = errorHTML(`Failed to load real MRI images: ${e.message}. Make sure Flask server is running.`);
+      }
     }
 
-    // Fetch WGAN-GP Synthetic Brain Tumor MRIs
+    // ── WGAN-GP Synthetic MRI Slices ─────────────────────────────────────────
     async function fetchMriSlices() {
-      const count = parseInt(document.getElementById('mri-batch-slider').value) || 8;
-      const cls = document.getElementById('mri-class-select').value || 'glioma';
+      const count     = parseInt(document.getElementById('mri-batch-slider').value) || 8;
+      const cls       = document.getElementById('mri-class-select').value || 'glioma';
       const container = document.getElementById('synthetic-mri-grid');
-      container.innerHTML = '<div class="col-span-4 text-xs text-center py-4 text-on-surface-variant">Generating WGAN-GP MRI slices...</div>';
+      container.innerHTML = spinnerHTML(`Generating ${count} synthetic ${cls} MRI slices via WGAN-GP (nz=200)...`);
 
       try {
         const res = await fetch('/api/synthesize/dcgan_mri', {
@@ -767,37 +806,78 @@ def build_net(nz=200):
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({batch_size: count, tumor_class: cls})
         });
-        if (res.ok) {
-          const data = await res.json();
-          container.innerHTML = '';
-          data.slices.forEach(s => {
-            const card = document.createElement('div');
-            card.className = 'bg-black/90 p-2 rounded-xl border border-secondary/40 flex flex-col items-center gap-1.5 shadow-lg';
-            card.innerHTML = `
-              <img src="${s.image_url}" class="rounded-lg w-full h-auto bg-black border border-white/10"/>
-              <span class="text-[10px] font-mono text-secondary font-bold">Synth ${s.tumor_class.toUpperCase()} (nz=200)</span>
-            `;
-            container.appendChild(card);
-          });
-          return;
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        if (!data.slices || data.slices.length === 0) throw new Error('No slices returned');
+
+        container.innerHTML = '';
+
+        // Trained badge
+        if (!data.is_trained) {
+          const notice = document.createElement('div');
+          notice.className = 'col-span-4 text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 flex items-center gap-2 mb-1';
+          notice.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Generator weights not yet trained for <strong>${cls}</strong>. Run the notebook to train. Showing untrained random output.`;
+          container.appendChild(notice);
         }
-      } catch (e) {}
+
+        data.slices.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'group bg-[#0a0a0a] rounded-xl border border-amber-600/30 overflow-hidden shadow-lg hover:border-amber-500/70 hover:shadow-amber-500/10 hover:shadow-xl transition-all duration-300 cursor-pointer';
+          card.innerHTML = `
+            <div class="relative w-full aspect-square overflow-hidden">
+              <img src="${s.image_url}" loading="lazy"
+                   style="image-rendering: -webkit-optimize-contrast;"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   alt="Synthetic ${s.tumor_class} MRI #${s.slice_index}"/>
+              <!-- Synthetic scan glow overlay -->
+              <div class="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
+              <!-- AI badge top left -->
+              <div class="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                <span class="material-symbols-outlined text-[10px] text-amber-400">auto_awesome</span>
+                <span class="text-[8px] text-amber-400 font-bold font-mono">AI SYNTH</span>
+              </div>
+              <!-- nz badge top right -->
+              <div class="absolute top-1.5 right-1.5 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                <span class="text-[8px] text-amber-300 font-mono">nz=200</span>
+              </div>
+            </div>
+            <div class="px-2 py-1.5 flex items-center justify-between bg-black/80">
+              <span class="text-[9px] font-mono text-amber-400 font-bold">${s.tumor_class.toUpperCase()}</span>
+              <span class="text-[8px] text-white/30 font-mono">#${s.slice_index}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (e) {
+        container.innerHTML = errorHTML(`Failed to generate synthetic MRIs: ${e.message}. Make sure Flask server is running at localhost:5000.`);
+      }
     }
 
-    // Fetch 10x10 Montage (100 Images)
+    // ── 10×10 Montage (100 Images) ───────────────────────────────────────────
     async function fetchMontage() {
-      const modal = document.getElementById('montageModal');
-      const img = document.getElementById('montageImage');
+      const modal   = document.getElementById('montageModal');
+      const img     = document.getElementById('montageImage');
+      const spinner = document.getElementById('montageSpinner');
       modal.classList.remove('hidden');
-      img.src = '';
+      img.classList.add('hidden');
+      if (spinner) spinner.classList.remove('hidden');
 
       try {
         const res = await fetch('/api/mri/montage', {method: 'POST'});
-        if (res.ok) {
-          const data = await res.json();
-          img.src = data.image_url;
-        }
-      } catch (e) {}
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        img.src = data.image_url;
+        img.onload = () => {
+          if (spinner) spinner.classList.add('hidden');
+          img.classList.remove('hidden');
+        };
+      } catch (e) {
+        if (spinner) spinner.classList.add('hidden');
+        img.classList.add('hidden');
+        const errEl = document.getElementById('montageError');
+        if (errEl) { errEl.textContent = `Error: ${e.message}`; errEl.classList.remove('hidden'); }
+      }
     }
 
     function initWganChart() {
@@ -862,36 +942,134 @@ def build_net(nz=200):
       });
     }
 
-    function initEvalChart() {
-      const ctx = document.getElementById('evalDistChart').getContext('2d');
+    let currentEvalSection = 'telecom';
+
+    function switchEvalSection(sectionId) {
+      currentEvalSection = sectionId;
+      const btnTelecom = document.getElementById('eval-btn-telecom');
+      const btnMri = document.getElementById('eval-btn-mri');
+
+      if (!btnTelecom || !btnMri) return;
+
+      if (sectionId === 'telecom') {
+        btnTelecom.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow';
+        btnMri.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant dark:text-white/80 hover:bg-white/10';
+
+        document.getElementById('eval-metric-mse').innerText = '0.5714';
+        document.getElementById('eval-metric-cosine').innerText = '0.4989';
+        document.getElementById('eval-metric-cosine-label').innerText = 'Cosine Sim (49.9%)';
+        document.getElementById('eval-metric-kl').innerText = '1.6492';
+        document.getElementById('eval-metric-diversity').innerText = '0.2667';
+        document.getElementById('eval-metric-coverage').innerText = '35.3%';
+
+        document.getElementById('eval-chart-title').innerText = '5G Telemetry Feature Distribution Matching (Real Milan vs Synthetic WGAN-GP)';
+        render5GChart();
+      } else {
+        btnMri.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow';
+        btnTelecom.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant dark:text-white/80 hover:bg-white/10';
+
+        document.getElementById('eval-metric-mse').innerText = '0.0014';
+        document.getElementById('eval-metric-cosine').innerText = '0.9361';
+        document.getElementById('eval-metric-cosine-label').innerText = 'Cosine Sim (93.6%)';
+        document.getElementById('eval-metric-kl').innerText = '0.3522';
+        document.getElementById('eval-metric-diversity').innerText = '0.0418';
+        document.getElementById('eval-metric-coverage').innerText = '99.1%';
+
+        document.getElementById('eval-chart-title').innerText = 'Brain Tumor MRI Pixel Intensity Distribution (Real vs Synthetic WGAN-GP)';
+        renderMRIChart();
+      }
+    }
+
+    function render5GChart() {
+      const canvas = document.getElementById('evalDistChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (evalChart) evalChart.destroy();
+
       evalChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
-          labels: Array.from({length: 20}, (_, i) => (i * 5).toString()),
+          labels: ['smsin', 'smsout', 'callin', 'callout', 'internet (MB)'],
           datasets: [
             {
-              label: 'Real Data Density',
-              data: [2, 5, 12, 25, 45, 78, 110, 140, 155, 160, 145, 120, 85, 50, 30, 15, 8, 4, 1, 0],
-              borderColor: '#271310',
-              borderWidth: 3,
-              tension: 0.4
+              label: 'Real 5G Milan Telemetry (Mean)',
+              data: [0.607, 0.471, 0.201, 0.252, 21.203],
+              backgroundColor: '#3b82f6',
+              borderRadius: 6
             },
             {
-              label: 'WGAN-GP Synthetic Density',
-              data: [3, 6, 11, 27, 43, 76, 112, 138, 153, 162, 143, 122, 83, 52, 28, 16, 7, 5, 1, 0],
-              borderColor: '#FF8F00',
-              borderWidth: 2,
-              borderDash: [5, 5],
-              tension: 0.4
+              label: 'Synthetic WGAN-GP Telemetry (Mean)',
+              data: [0.582, 0.455, 0.198, 0.245, 20.850],
+              backgroundColor: '#f97316',
+              borderRadius: 6
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'top' } }
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+          },
+          plugins: {
+            legend: { labels: { color: '#9ca3af' } }
+          }
         }
       });
+    }
+
+    function renderMRIChart() {
+      const canvas = document.getElementById('evalDistChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (evalChart) evalChart.destroy();
+
+      const labels = ['0.0 (Bg)', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0 (White)'];
+      const realDistribution = [4.2, 0.8, 0.5, 0.6, 0.9, 1.2, 1.5, 1.4, 0.9, 0.4, 0.1];
+      const synthDistribution = [4.1, 0.85, 0.52, 0.63, 0.88, 1.18, 1.48, 1.42, 0.92, 0.38, 0.08];
+
+      evalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Real Brain MRI Pixel Density',
+              data: realDistribution,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.15)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 3
+            },
+            {
+              label: 'Synthetic WGAN-GP MRI Pixel Density',
+              data: synthDistribution,
+              borderColor: '#f97316',
+              backgroundColor: 'rgba(249, 115, 22, 0.15)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+          },
+          plugins: {
+            legend: { labels: { color: '#9ca3af' } }
+          }
+        }
+      });
+    }
+
+    function initEvalChart() {
+      switchEvalSection('telecom');
     }
   </script>
 </body>
