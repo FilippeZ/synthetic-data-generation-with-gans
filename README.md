@@ -1,4 +1,8 @@
-# Synthesis Hub — WGAN-GP Synthetic Data Platform
+<div align="center">
+  <img src="assets/images/logo.png" alt="Synthesis Hub Logo" width="180" style="border-radius: 20px; margin-bottom: 15px;"/>
+  <h1>Synthesis Hub — WGAN-GP Synthetic Data Platform</h1>
+  <p><b>Dual-domain WGAN-GP engine</b> for <b>5G Healthcare IoT</b> tabular telemetry synthesis and <b>Brain Tumor MRI</b> image augmentation</p>
+</div>
 
 > **Dual-domain WGAN-GP engine** for **5G Healthcare IoT** tabular telemetry synthesis and **Brain Tumor MRI** image augmentation — with real-time inference, anomaly detection, and quantitative evaluation metrics, served via a full-stack Flask web application.
 
@@ -491,5 +495,5 @@ A GP that converges toward ~0 (but not exactly 0) confirms the Critic satisfies 
 
 **GitHub:** https://github.com/FilippeZ/synthetic-data-generation-with-gans
 
-**Author:** FilippeZ  
+**Author:** Filippos Paraskevas Zygouris ([@FilippeZ](https://github.com/FilippeZ))  
 **License:** MIT
